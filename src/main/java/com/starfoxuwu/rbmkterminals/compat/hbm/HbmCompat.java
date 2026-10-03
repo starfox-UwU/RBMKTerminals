@@ -1,6 +1,9 @@
 package com.starfoxuwu.rbmkterminals.compat.hbm;
 
 import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 
 import com.starfoxuwu.rbmkterminals.block.BlockDisplayTerminal;
 import com.starfoxuwu.rbmkterminals.block.BlockInputTerminal;
@@ -56,5 +59,33 @@ public final class HbmCompat {
      */
     public static void installRORBus() {
         if (isAvailable()) HbmRORBus.install();
+    }
+
+    /*
+     * The four parts the terminal recipes are built from. Each one answers with HBM's own item while HBM is installed
+     * and with a plain vanilla stand-in otherwise, which keeps the recipe grids in one piece and still leaves the
+     * terminals craftable on a game without HBM.
+     */
+
+    /** @return HBM's integrated circuit board ({@code item.circuit.basic}), or redstone without HBM */
+    public static ItemStack basicCircuit() {
+        return isAvailable() ? HbmTerminalParts.basicCircuit() : new ItemStack(Items.redstone);
+    }
+
+    /** @return HBM's cathode ray tube ({@code item.crt_display}), or glass without HBM */
+    public static ItemStack crtDisplay() {
+        return isAvailable() ? HbmTerminalParts.crtDisplay() : new ItemStack(Blocks.glass);
+    }
+
+    /**
+     * @return HBM's Redstone-over-Radio receiver ({@code tile.radio_torch_receiver}), or a redstone torch without HBM
+     */
+    public static ItemStack radioReceiver() {
+        return isAvailable() ? HbmTerminalParts.radioReceiver() : new ItemStack(Blocks.redstone_torch);
+    }
+
+    /** @return HBM's Redstone-over-Radio transmitter ({@code tile.radio_torch_sender}), or a comparator without HBM */
+    public static ItemStack radioSender() {
+        return isAvailable() ? HbmTerminalParts.radioSender() : new ItemStack(Items.comparator);
     }
 }
