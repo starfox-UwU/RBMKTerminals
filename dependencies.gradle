@@ -35,4 +35,33 @@
  */
 dependencies {
     //runtimeOnlyNonPublishable("com.github.GTNewHorizons:NotEnoughItems:2.7.69-GTNH:dev")
+
+    // the terminal command language is plain Java and is covered by unit tests
+    testImplementation("junit:junit:4.13.2")
+
+    /*
+     * HBM's Nuclear Tech Mod, for the screwdriver.
+     *
+     * The terminals implement api.hbm.block.IToolable, which is the same hook HBM's own tile.rbmk_indicator uses: HBM's
+     * screwdriver (com.hbm.items.tool.ItemTooling) calls IToolable#onScrew on whatever block it is used on. The jar in
+     * libs/ is the normal HBM release jar, so it still carries SRG names and has to go through rfg.deobf first.
+     *
+     * compileOnly on purpose: HBM is an optional dependency, the mod builds and runs without it, and at runtime the
+     * classes come from the HBM the player has installed. Nothing about HBM is published as a dependency of this mod.
+     *
+     * To try the screwdriver in this development workspace, put HBM (and the CodeChicken mods it needs) into
+     * run/client/mods, or swap compileOnly for devOnlyNonPublishable below to have Gradle load it from libs/.
+     */
+    compileOnly(rfg.deobf(files("libs/HBM-NTM-1.0.27_X5778_H261.jar")))
+    // devOnlyNonPublishable(rfg.deobf(files("libs/HBM-NTM-1.0.27_X5778_H261.jar")))
+
+    // the integration test builds probes on top of those two blocks, so the test source set needs HBM as well; nothing
+    // in src main is compiled against HBM being present at runtime
+    testImplementation(rfg.deobf(files("libs/HBM-NTM-1.0.27_X5778_H261.jar")))
+
+    /*
+     * Same thing straight from HBM's maven, without the local jar:
+     *   repositories.gradle: maven { name = 'NTM'; url = 'https://maven.ntmr.dev/releases' }
+     *   compileOnly("com.hbm:HBM-NTM:1.0.27_X5808:dev") { transitive = false }
+     */
 }

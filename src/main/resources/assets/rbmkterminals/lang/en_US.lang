@@ -1,0 +1,13 @@
+tile.display_terminal.name=Display Terminal
+tile.input_terminal.name=Input Terminal
+
+tooltip.rbmkterminals.display_terminal.1=Wall mounted screen, it only displays what other terminals push onto it
+tooltip.rbmkterminals.display_terminal.2=Aim at it and use /terminal write <text> to put a line on it
+tooltip.rbmkterminals.display_terminal.3=Tune it with /terminal chan <name> to let other terminals reach it over the radio
+
+tooltip.rbmkterminals.input_terminal.1=Wall mounted terminal that both displays and takes input
+tooltip.rbmkterminals.input_terminal.2=Right click it to type, /terminal write also works from the outside
+tooltip.rbmkterminals.input_terminal.3=Commands: help, echo, write, set, clear, rs, time, pos
+tooltip.rbmkterminals.input_terminal.4=Radio: chan <name>, send <cmd>, start <cmd>, stop
+
+tooltip.rbmkterminals.screwdriver=Right click it with HBM's screwdriver to configure channel, text colour and listening

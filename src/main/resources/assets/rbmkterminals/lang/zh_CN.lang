@@ -1,0 +1,13 @@
+tile.display_terminal.name=显示终端
+tile.input_terminal.name=输入终端
+
+tooltip.rbmkterminals.display_terminal.1=壁挂式屏幕，只显示其它终端推过来的内容
+tooltip.rbmkterminals.display_terminal.2=瞄准它并输入 /terminal write <文本> 就能写上一行
+tooltip.rbmkterminals.display_terminal.3=用 /terminal chan <频道> 调频后，其它终端就能隔着空间往这儿推内容
+
+tooltip.rbmkterminals.input_terminal.1=兼顾显示与输入的壁挂式终端
+tooltip.rbmkterminals.input_terminal.2=右键打开输入界面，也可以用 /terminal write 从外部写入
+tooltip.rbmkterminals.input_terminal.3=命令：help、echo、write、set、clear、rs、time、pos
+tooltip.rbmkterminals.input_terminal.4=无线红石：chan <频道>、send <命令>、start <命令>、stop
+
+tooltip.rbmkterminals.screwdriver=装 HBM 时可用螺丝刀右键打开配置界面（频道、文字颜色、是否监听）

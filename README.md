@@ -1,109 +1,89 @@
-# Example Forge Mod for Minecraft 1.7.10
+# RBMK Terminals
 
-[![](https://jitpack.io/v/GTNewHorizons/ExampleMod1.7.10.svg)](https://jitpack.io/#GTNewHorizons/ExampleMod1.7.10)
-[![](https://github.com/GTNewHorizons/ExampleMod1.7.10/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/GTNewHorizons/ExampleMod1.7.10/actions/workflows/build-and-test.yml)
+Wall mounted display and input terminals for Minecraft 1.7.10, modelled after the RBMK terminal of
+[HBM's Nuclear Tech Mod](https://github.com/HbmMods/Hbm-s-Nuclear-Tech-GIT).
 
-An example mod for Minecraft 1.7.10 with Forge focussed on a stable, updatable setup.
+两块仿 HBM 的 RBMK 终端做出来的壁挂式终端方块：一块只能显示，一块既能显示也能输入，
+自带一套打字命令和一套无线红石（ROR）收发，装了 HBM 时还能直接用 HBM 的螺丝刀配置。
 
-<!-- omit in toc -->
-### Table of Contents
+| 方块 | 注册名 | 说明 |
+| --- | --- | --- |
+| 显示终端 | `rbmkterminals:display_terminal` | **只能显示**：没有界面、没有键盘，内容只能由外部推送 |
+| 输入终端 | `rbmkterminals:input_terminal` | **兼顾输入与显示**：右键打开键盘，输入的命令会执行并回显到屏幕上 |
 
-* [Example Forge Mod for Minecraft 1.7.10](#example-forge-mod-for-minecraft-1710)
-    * [Motivation](#motivation)
-    * [Help! I'm stuck!](#help-im-stuck)
-    * [Getting started](#getting-started)
-    * [Features](#features)
-    * [Files](#files)
-    * [Forge's Access Transformers](#forges-access-transformers)
-    * [Mixins](#mixins)
-    * [Advanced](#advanced)
-    * [Feedback wanted](#feedback-wanted)
+两者都是贴在墙上的薄板，屏幕用 TESR 画在朝外的那一面（最多 18 行、每行 10 像素的等宽文字）。
+输入终端还能像红石方块一样输出 0–15 的强度，等于一个用打字控制的红石电源。
 
+## 和 HBM 的关系
 
-### Motivation
+HBM's Nuclear Tech Mod 是**可选**依赖，`dependencies.gradle` 里是 `compileOnly`：
 
-We had our fair share in struggles with build scripts for Minecraft Forge. There are quite a few pitfalls from non-obvious error messages. This Example Project provides you a build system you can adapt to over 90% of Minecraft Forge mods and can easily be updated if need be.
+* 装了 HBM 时，两块终端会出现在 HBM 的机器标签页（`itemGroup.tabMachine`，即 `MainRegistry.machineTab`）里，
+  和它们模仿的 RBMK 控制台放在一起；
+* 装了 HBM 时，用**螺丝刀**右键任一终端可以打开配置界面，调频道、文字颜色、是否监听；
+* 装了 HBM 时，终端会接进 HBM 自己的 ROR 总线，所以 `tile.radio_autocal`（AUTOCAL）发出来的东西能直接显示在
+  终端上，终端打的 `send` 也能被 HBM 的设备听到；
+* 没装 HBM 时，终端退回成普通版本（没有螺丝刀配置、不接 HBM 总线），位于原版的红石标签页，
+  mod 照常启动，不会报 `NoClassDefFoundError`。
 
-### Help! I'm stuck!
+## 上手
 
-We all have been there! Check out our [FAQ](https://github.com/GTNewHorizons/ExampleMod1.7.10/blob/main/docs/FAQ.md). If that doesn't help, please open an issue.
+进游戏后（创造模式最快）：
 
-### Getting started
+```
+/give @p rbmkterminals:display_terminal
+/give @p rbmkterminals:input_terminal
+```
 
-> [!WARNING]
-> Do not clone or fork this repository when creating a new mod. It contains files that are specific to this example project and are not part of the mod template. Use the [project starter](https://github.com/GTNewHorizons/ExampleMod1.7.10/releases/download/master-packages/starter.zip) instead.
+把两块终端贴在墙上，右键输入终端敲 `help`，或者对着显示终端执行 `/terminal write hello world`。
 
-Creating mod from scratch:
-1. Unzip [project starter](https://github.com/GTNewHorizons/ExampleMod1.7.10/releases/download/master-packages/starter.zip) into project directory.
-2. Replace placeholders in LICENSE-template and rename it to LICENSE, or remove LICENSE-template and put any other license you like on your code. This is an permissive OSS project and we encourage you participate in OSS movement by having permissive license like one in template. You can find out pros and cons of OSS software in [this article](https://www.freecodecamp.org/news/what-is-great-about-developing-open-source-and-what-is-not/)
-3. Ensure your project is under VCS. For example initialise git repository by running `git init; git commit --message "initialized repository"`.
-4. Replace placeholders (edit values in gradle.properties, change example package and class names, etc.)
-5. Run `./gradlew setupDecompWorkspace`
-6. Run `./gradlew build`
-6. Make sure to check out the rest sections of this file.
-7. You are good to go!
+想试无线红石：对着显示终端执行 `/terminal chan control`，再去输入终端里敲 `chan control`、
+`send write!hello radio`，显示终端上就会出现 `> hello radio`。
 
-We also have described guidelines for existing mod [migration](docs/migration.md) and [porting](docs/porting.md)
+输入终端认识的命令：
 
-### Features
+| 命令 | 作用 |
+| --- | --- |
+| `help` / `?` | 列出所有命令 |
+| `echo <文本>` / `write <文本>` | 把文本打到屏幕上 |
+| `set <行号> <文本>` | 覆写第 1 – 18 行中的某一行 |
+| `clear` / `cls` | 清屏 |
+| `rs <0-15>` | 设置该终端的模拟红石输出强度 |
+| `chan <频道名>` | 调到 ROR 频道（不带频道名表示离开频道） |
+| `send <命令>` / `start <命令>` / `stop` | 在频道上发一条命令 / 每 tick 重复发 / 停止重复 |
+| `time` / `pos` / `dim` / `players` | 世界时间、坐标、维度、该维度玩家数 |
+| `horse` | 向 HBM 致敬 |
+| `selfdestruct` | 自毁（默认在配置里关掉） |
 
- - Updatable: Replace [`build.gradle`](https://github.com/GTNewHorizons/ExampleMod1.7.10/blob/main/build.gradle) with a newer version
- - Optional API artifact (.jar)
- - Optional version replacement in Java files
- - Optional shadowing of dependencies
- - Simplified setup of Mixin and example
- - Scala support (add sources under `src/main/scala/` instead of `src/main/java/`)
- - Optional named developer account for consistent player progression during testing
- - Boilerplate forge mod as starting point
- - Improved warnings for pitfalls
- - Git Tags integration for versioning
- - [Jitpack](https://jitpack.io) CI
- - GitHub CI:
-   - Releasing your artifacts on new tags pushed. Push git tag named after version (e.g. 1.0.0) which will trigger a release of artifacts with according names.
-   - Running smoke test for server startup. On any server crash occurring workflow will fail and print the crash log.
+显示终端没有键盘，写入只能从外部来，用 `/terminal` 命令（别名 `term`、`dterm`），
+它作用于准星指着的、8 格以内的那台终端：`write` / `set` / `clear` / `chan` / `read` / `functions`。
 
-### Files
- - [`build.gradle`](https://github.com/GTNewHorizons/ExampleMod1.7.10/blob/main/build.gradle): This is the core script of the build process. You should not need to tamper with it, unless you are trying to accomplish something out of the ordinary. __Do not touch this file! You will make a future update near impossible if you do so!__
- - [`gradle.properties`](https://github.com/GTNewHorizons/ExampleMod1.7.10/blob/main/gradle.properties): The core configuration file. It includes
- - [`dependencies.gradle[.kts]`](https://github.com/GTNewHorizons/ExampleMod1.7.10/blob/main/dependencies.gradle): Add your mod's dependencies in this file. This is separate from the main build script, so you may replace the [`build.gradle`](https://github.com/SinTh0r4s/ExampleMod1.7.10/blob/main/build.gradle) if an update is available.
- - [`repositories.gradle[.kts]`](https://github.com/GTNewHorizons/ExampleMod1.7.10/blob/main/repositories.gradle): Add your dependencies' repositories. This is separate from the main build script, so you may replace the [`build.gradle`](https://github.com/SinTh0r4s/ExampleMod1.7.10/blob/main/build.gradle) if an update is available.
- - `addon.gradle[.kts]`: Any additional build logic. This is separate from the main build script, so you may replace the [`build.gradle`](https://github.com/SinTh0r4s/ExampleMod1.7.10/blob/main/build.gradle) if an update is available. See [Advanced](#advanced) for more details.
- - [`jitpack.yml`](https://github.com/GTNewHorizons/ExampleMod1.7.10/blob/main/jitpack.yml): Ensures that your mod is available as import over [Jitpack](https://jitpack.io).
- - [`.github/workflows/gradle.yml`](https://github.com/GTNewHorizons/ExampleMod1.7.10/blob/main/.github/workflows/gradle.yml): A simple CI script that will build your mod any time it is pushed to `master` or `main` and publish the result as release in your repository. This feature is free with GitHub if your repository is public.
+## 文档
 
-### Forge's Access Transformers
+完整的技术文档在 [docs/terminals.md](docs/terminals.md)：放置与交互、螺丝刀配置、命令语言、
+ROR 频道与 HBM 总线桥接、网络同步、源文件结构都在那里。
 
-You may activate Forge's Access Transformers by defining a configuration file in `gradle.properties`.
+## 构建
 
-Check out the [`example-access-transformers`](https://github.com/GTNewHorizons/ExampleMod1.7.10/tree/example-access-transformers) branch for a working example!
+需要 JDK 17+（构建脚本会自己处理 1.7.10 的工具链）：
 
-> [!WARNING]
-> Access Transformers are bugged and will deny you any sources for the decompiled Minecraft! Your development environment will still work, but you might face some inconveniences. For example, IntelliJ will not permit searches in dependencies without attached sources.
+```
+./gradlew build          # 产物在 build/libs/
+./gradlew runClient      # 起一个开发客户端
+./gradlew test           # 命令语言与 ROR 桥接的单元测试
+```
 
-### Mixins
+螺丝刀那部分要编译就得有 HBM 的 jar：把 `HBM-NTM-<版本>.jar` 放到 `libs/`（`dependencies.gradle`
+里的 `compileOnly(rfg.deobf(files("libs/HBM-NTM-1.0.27_X5778_H261.jar")))`），
+或者换成 HBM maven 上的 `com.hbm:HBM-NTM:<版本>:dev`。想在 `runClient` 里试 HBM 相关的功能，
+把 HBM 和它需要的 CodeChicken 那几个 mod 丢进 `run/client/mods`。
 
-[Mixins](https://github.com/SpongePowered/Mixin) are used to modify vanilla or mod/library code during runtime without having to edit, recompile, and redistribute the original code. For example, mixins can change a hardcoded value, redirect a method call, inject additional code, access private fields/methods, make a class implement your interface, and more. Mixins are an advanced feature which most normal mods will not require.
+## 许可
 
-Documentation about Mixin features can be found here: [Mixin Wiki](https://github.com/SpongePowered/Mixin/wiki) and [MixinExtras Wiki](https://github.com/LlamaLad7/MixinExtras/wiki)
+MIT，见 [LICENSE](LICENSE)。
 
-There are many examples of mixins in these mods: [Hodgepodge](https://github.com/GTNewHorizons/Hodgepodge) and [Angelica](https://github.com/GTNewHorizons/Angelica)
+## 致谢
 
-To enable Mixins in your project, follow one of the example commits:
-- use [normal mixins](https://github.com/GTNewHorizons/ExampleMod1.7.10/commit/beba55615fa8337b7639f0d5b18db6cc8d4826be) for basic and quick registration
-- use [GTNH IMixins](https://github.com/GTNewHorizons/ExampleMod1.7.10/commit/055cd4f18765a421a86c706f53b62116988297e3) (recommended) for the same thing as below, but in a less verbose and more unified manner using the IMixins api
-- use [GTNH Early/Late mixins](https://github.com/GTNewHorizons/ExampleMod1.7.10/commit/c4df59d92164775b69451f3e690239e93d1fc979) to have full control over the registration logic and check for presence of other mods during runtime to load your mixins
-
-The extra required dependencies are handled automatically after mixins are enabled.
-
-### Advanced
-
-If your project requires custom gradle commands you may add a `addon.gradle[.kts]` to your project. It will be added automatically to the build script. Although we recommend against it, it is sometimes required. When in doubt, feel free to ask us about it. You may break future updates of this build system!
-If you need access to properties modified later in the buildscript, you can also use a `addon.late.gradle[.kts]`.
-For local tweaks that you don't want to commit to Git, like adding extra JVM arguments for testing, use `addon[.late].local.gradle[.kts]`.
-
-### Feedback wanted
-
-If you tried out this build script we would love to head your opinion! Is there any feature missing for you? Did something not work? Please open an issue and we will try to resolve it asap!
-
-Happy modding,\
-[SinTh0r4s](https://github.com/SinTh0r4s), [TheElan](https://github.com/TheElan) and [basdxz](https://github.com/basdxz)
+* 构建脚本来自 [GTNewHorizons/ExampleMod1.7.10](https://github.com/GTNewHorizons/ExampleMod1.7.10)（MIT，
+  Copyright (c) 2021 Johann Bernhardt）；
+* 灵感与互操作对象是 [HBM's Nuclear Tech Mod](https://github.com/HbmMods/Hbm-s-Nuclear-Tech-GIT)。
